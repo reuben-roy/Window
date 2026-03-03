@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    accessibility_service_config.xml — Window
+    Configures the WindowAccessibilityService.
+
+    accessibilityEventTypes:
+        typeWindowStateChanged  — detects foreground app changes
+        typeWindowContentChanged — detects text/view updates within a window
+        typeViewClicked         — captures tap interactions
+
+    canRetrieveWindowContent="true"
+        Grants permission to traverse the AccessibilityNodeInfo tree and read
+        visible UI text, button labels, and content descriptions.
+
+    accessibilityFeedbackType:
+        feedbackGeneric — no audible/haptic feedback; silent monitoring only.
+
+    notificationTimeout:
+        100ms — balance between responsiveness and battery impact.
+
+    flags:
+        flagReportViewIds           — include resource IDs in node info
+        flagRequestFilterKeyEvents  — capture keyboard input events (optional)
+-->
+<accessibility-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeViewClicked|typeViewFocused"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagReportViewIds|flagIncludeNotImportantViews|flagRequestFilterKeyEvents"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/accessibility_service_description"
+    android:notificationTimeout="100"
+    android:settingsActivity=".ui.settings.SettingsActivity" />
+

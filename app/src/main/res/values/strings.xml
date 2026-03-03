@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Window</string>
+    <string name="accessibility_service_label">Window Activity Monitor</string>
+    <string name="accessibility_service_description">Window monitors which apps you use and for how long, then uses on-device AI to summarise your activity. No data leaves your device.</string>
+    <string name="permission_usage_stats_rationale">Window needs Usage Access to verify time-tracking data. Tap OK to open system Settings and grant access.</string>
+    <string name="notification_channel_name">Window Service</string>
+    <string name="notification_channel_desc">Keeps the activity monitor running in the background</string>
+    <string name="notification_title">Window is running</string>
+    <string name="notification_text">Monitoring app activity on-device</string>
+</resources>
+
