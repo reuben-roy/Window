@@ -2,10 +2,11 @@ package com.window.app.data.ai
 
 import android.content.Context
 import android.util.Log
-import com.google.ai.edge.localai.GenerativeModel
-import com.google.ai.edge.localai.GenerativeModelFutures
-import com.google.ai.edge.localai.common.GenerateContentResponse
-import com.google.ai.edge.localai.common.content
+// TODO: Re-enable when correct Google AI Edge library version is available
+// import com.google.ai.edge.localai.GenerativeModel
+// import com.google.ai.edge.localai.GenerativeModelFutures
+// import com.google.ai.edge.localai.common.GenerateContentResponse
+// import com.google.ai.edge.localai.common.content
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,7 +36,11 @@ class GeminiRepository @Inject constructor(
     }
 
     // Lazy so we don't crash on devices where AICore is absent
-    private val model: GenerativeModel? by lazy {
+    // TODO: Re-enable when Google AI Edge library is available
+    private val model: Any? by lazy {
+        Log.w(TAG, "Gemini Nano library not available - AI features disabled")
+        null
+        /*
         runCatching {
             GenerativeModel(
                 modelName = MODEL_NAME,
@@ -44,6 +49,7 @@ class GeminiRepository @Inject constructor(
         }.onFailure { e ->
             Log.e(TAG, "Gemini Nano not available on this device: ${e.message}")
         }.getOrNull()
+        */
     }
 
     /**
@@ -65,6 +71,11 @@ class GeminiRepository @Inject constructor(
         recentNodeTexts: List<String>,
         packageName: String
     ): String? = withContext(Dispatchers.Default) {
+        // TODO: Re-enable when Google AI Edge library is available
+        Log.w(TAG, "summarizeActivity called but AI library not available")
+        return@withContext null
+
+        /*
         val localModel = model ?: run {
             Log.w(TAG, "summarizeActivity called but model is unavailable")
             return@withContext null
@@ -97,6 +108,7 @@ class GeminiRepository @Inject constructor(
         }.onFailure { e ->
             Log.e(TAG, "Inference failed: ${e.message}")
         }.getOrNull()
+        */
     }
 
     /**
@@ -104,10 +116,14 @@ class GeminiRepository @Inject constructor(
      * Call from Application.onCreate() or the first Compose screen.
      */
     suspend fun warmUp() = withContext(Dispatchers.Default) {
+        // TODO: Re-enable when Google AI Edge library is available
+        Log.w(TAG, "warmUp called but AI library not available")
+        /*
         model ?: return@withContext
         runCatching {
             model?.generateContent(content { text("Hello") })
         }.onFailure { Log.w(TAG, "Warm-up failed: ${it.message}") }
+        */
     }
 }
 

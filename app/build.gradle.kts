@@ -124,7 +124,8 @@ dependencies {
     // -------------------------------------------------------------------------
     // Google AI Edge — Gemini Nano on-device inference
     // -------------------------------------------------------------------------
-    implementation(libs.google.ai.edge.generativeai)
+    // TODO: Update to correct artifact when available
+    // implementation(libs.google.ai.edge.generativeai)
 
     // -------------------------------------------------------------------------
     // DataStore — lightweight settings persistence

@@ -41,9 +41,9 @@
         android:theme="@style/Theme.Window"
         tools:targetApi="31">
 
-        <!-- -----------------------------------------------------------------
-             MainActivity — Compose NavHost entry point
-        ------------------------------------------------------------------ -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             MainActivity - Compose NavHost entry point
+        ═══════════════════════════════════════════════════════════════ -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -54,11 +54,11 @@
             </intent-filter>
         </activity>
 
-        <!-- -----------------------------------------------------------------
+        <!-- ═══════════════════════════════════════════════════════════════
              WindowAccessibilityService
              BIND_ACCESSIBILITY_SERVICE is implicitly required when the
              service declares the accessibility intent-filter.
-        ------------------------------------------------------------------ -->
+        ═══════════════════════════════════════════════════════════════ -->
         <service
             android:name=".service.WindowAccessibilityService"
             android:exported="true"
@@ -72,9 +72,9 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <!-- -----------------------------------------------------------------
-             PruneEventsWorker — background data retention via WorkManager
-        ------------------------------------------------------------------ -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             PruneEventsWorker - background data retention via WorkManager
+        ═══════════════════════════════════════════════════════════════ -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
