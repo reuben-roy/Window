@@ -4,7 +4,6 @@ import android.app.AppOpsManager
 import android.app.AppOpsManager.MODE_ALLOWED
 import android.app.AppOpsManager.OPSTR_GET_USAGE_STATS
 import android.content.Context
-import android.view.accessibility.AccessibilityManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.*
@@ -55,7 +54,6 @@ class SettingsViewModel @Inject constructor(
     // -------------------------------------------------------------------------
 
     private fun checkAccessibilityEnabled(): Boolean {
-        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
         val enabledServices = android.provider.Settings.Secure.getString(
             context.contentResolver,
             android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
