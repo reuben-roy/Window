@@ -11,3 +11,7 @@ captures/
 *.aab
 google-services.json
 /app/schemas/
+
+# Local Android SDK + JDK (download / unpack beside repo; do not commit)
+android-sdk/
+jdk-*/

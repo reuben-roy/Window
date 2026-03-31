@@ -8,6 +8,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
@@ -54,8 +56,8 @@ class WindowAccessibilityService : AccessibilityService() {
     // -------------------------------------------------------------------------
     // Session tracking state
     // -------------------------------------------------------------------------
-    private var currentPackage: String = ""
-    private var currentSessionId: Long = -1L
+    @Volatile private var currentPackage: String = ""
+    private val currentSessionId = AtomicLong(-1L)
     private val sessionStartTime = AtomicLong(0L)
 
     // AI inference debounce — run inference at most once per 30 seconds
@@ -139,20 +141,22 @@ class WindowAccessibilityService : AccessibilityService() {
         val now = System.currentTimeMillis()
 
         // Close the previous session
-        if (currentSessionId != -1L) {
+        val prevSessionId = currentSessionId.get()
+        if (prevSessionId != -1L) {
             val start    = sessionStartTime.get()
             val duration = now - start
             serviceScope.launch {
                 sessionDao.closeSession(
-                    id         = currentSessionId,
+                    id         = prevSessionId,
                     endTime    = now,
                     durationMs = duration
                 )
-                Log.d(TAG, "Closed session $currentSessionId for $currentPackage (${duration}ms)")
+                Log.d(TAG, "Closed session $prevSessionId for $currentPackage (${duration}ms)")
             }
         }
 
-        // Open a new session
+        // Mark session as invalid while we wait for the DB insert
+        currentSessionId.set(-1L)
         currentPackage = newPackage
         sessionStartTime.set(now)
 
@@ -166,7 +170,7 @@ class WindowAccessibilityService : AccessibilityService() {
                     date        = DateUtil.todayIso()
                 )
             )
-            currentSessionId = id
+            currentSessionId.set(id)
             Log.d(TAG, "Opened session $id for $newPackage ($label)")
         }
     }
@@ -176,7 +180,7 @@ class WindowAccessibilityService : AccessibilityService() {
     // =========================================================================
 
     private fun handleContentEvent(pkg: String, event: AccessibilityEvent) {
-        val sessionId = currentSessionId
+        val sessionId = currentSessionId.get()
         if (sessionId == -1L) return
 
         val interactionType = when (event.eventType) {
@@ -233,16 +237,19 @@ class WindowAccessibilityService : AccessibilityService() {
     ) {
         if (node == null || buffer.size >= MAX_NODES) return
 
-        // Extract text content
         node.text?.toString()?.takeIf { it.isNotBlank() }?.let { buffer.add(it.trim()) }
         node.contentDescription?.toString()?.takeIf { it.isNotBlank() }
             ?.let { buffer.add("[desc: ${it.trim()}]") }
         node.hintText?.toString()?.takeIf { it.isNotBlank() }
             ?.let { buffer.add("[hint: ${it.trim()}]") }
 
-        // Recurse into children
         for (i in 0 until node.childCount) {
-            scrapeNodeTree(node.getChild(i), buffer, depth + 1)
+            val child = node.getChild(i) ?: continue
+            try {
+                scrapeNodeTree(child, buffer, depth + 1)
+            } finally {
+                child.recycle()
+            }
             if (buffer.size >= MAX_NODES) break
         }
     }
@@ -272,10 +279,10 @@ class WindowAccessibilityService : AccessibilityService() {
     // =========================================================================
 
     private fun closeCurrentSession() {
-        if (currentSessionId == -1L) return
+        val id = currentSessionId.get()
+        if (id == -1L) return
         val now      = System.currentTimeMillis()
         val duration = now - sessionStartTime.get()
-        val id       = currentSessionId
         // Use GlobalScope here because serviceScope is being cancelled
         GlobalScope.launch(Dispatchers.IO) {
             sessionDao.closeSession(id = id, endTime = now, durationMs = duration)
@@ -321,7 +328,11 @@ class WindowAccessibilityService : AccessibilityService() {
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()
 
-        startForeground(NOTIF_ID, notification)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(NOTIF_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        } else {
+            startForeground(NOTIF_ID, notification)
+        }
     }
 }
 
